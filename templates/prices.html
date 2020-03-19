@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+    <script>
+        let all_tests=[];
+        let q=[];
+        let receipt=[];
+        let patients=[];
+        let total=0;
+    </script>
+    <script>
+        {% for t in tests %}
+            var obj={
+                id:{{ t.id }},
+                name:'{{ t.name }}',
+                max_1995:{{ t.max_1995 }},
+                min_1995:{{ t.min_1995 }},
+                min_price:{{ t.min_price }},
+                max_2008:{{ t.max_2008 }},
+                jam:{{ t.jam }},
+            };
+            q.push( obj);
+        {% endfor %}
+        {% for p in patients %}
+            var obj={
+                user:'{{ p.user_id.first_name }}',
+                id:{{ p.id }},
+                name:'{{ p.first_name }}',
+                gender:'{{ p.gender }}',
+                state:'{{ p.state }}',
+                address:'{{ p.address }}',
+                Lab:'{{ p.lab }}',
+                phone:'{{ p.phone }}',
+            };
+            patients.push( obj);
+        {% endfor %}
+
+        console.log('patints :', patients);
+
+        console.log('query :',q);
+        function re_check() {
+            if(receipt.length==0)
+                return false
+            else return true
+        }
+        function valsh() {
+            var total_price = 0;
+            let selected_objects = [];
+            var selected_tests = $('#test_select').val();
+            console.log(selected_tests)
+            var price = $('#price').val();
+            for (let test = 0; test < selected_tests.length; test++) {
+                for (let all = 0; all < q.length; all++) {
+                    if (selected_tests[test].toString() === q[all].name.toString())
+                        selected_objects.push(q[all]);
+                }
+            }
+            console.log('selected objects ', selected_objects);
+            console.log('price', price);
+            for (let obj_num = 0; obj_num < selected_objects.length; obj_num++) {
+                if (price.includes('max_1995')) {
+                    total_price += selected_objects[obj_num].max_1995;
+                    receipt.push(object = {
+                        name: selected_objects[obj_num].name,
+                        test_type: 'max_1995',
+                        test_price: selected_objects[obj_num].max_1995
+                    })
+                }
+                if (price.includes('min_1995')) {
+                    total_price += selected_objects[obj_num].min_1995;
+                    receipt.push(object = {
+                        name: selected_objects[obj_num].name,
+                        test_type: 'min_1995',
+                        test_price: selected_objects[obj_num].min_1995
+                    })
+                }
+                if (price.includes('min_price')) {
+                    total_price += selected_objects[obj_num].min_price;
+                    receipt.push(object = {
+                        name: selected_objects[obj_num].name,
+                        test_type: 'min_price',
+                        test_price: selected_objects[obj_num].min_price
+                    })
+                }
+                if (price.includes('max_2008')) {
+                    total_price += selected_objects[obj_num].max_2008;
+                    receipt.push(object = {
+                        name: selected_objects[obj_num].name,
+                        test_type: 'max_2008',
+                        test_price: selected_objects[obj_num].max_2008
+                    })
+                }
+                if (price.includes('jam')) {
+                    total_price += selected_objects[obj_num].jam;
+                    receipt.push(object = {
+                        name: selected_objects[obj_num].name,
+                        test_type: 'jam',
+                        test_price: selected_objects[obj_num].jam
+                    })
+                }
+
+            }
+            console.log('total price : ', total_price);
+            console.log('receipt objects : ', receipt);
+if(re_check()){
+    var myTableDiv = document.getElementById("metric_results");
+            var table = document.createElement('TABLE');
+            var tableBody = document.createElement('TBODY');
+
+            table.appendChild(tableBody);
+
+            var heading = [];
+            heading[0] = "Test Number";
+            heading[1] = "Test name";
+            heading[2] = "Test price type";
+            heading[3] = "Price";
+
+            var stock = receipt;
+
+            //TABLE COLUMNS
+            var tr = document.createElement('TR');
+            tableBody.appendChild(tr);
+            for (i = 0; i < heading.length; i++) {
+                var th = document.createElement('TH');
+
+                th.appendChild(document.createTextNode(heading[i]));
+                tr.appendChild(th);
+
+            }
+            console.log('teble', stock)
+            //TABLE ROWS
+            for (var i = 0; i < stock.length; i++) {
+                var tr = document.createElement('TR');
+                var number = document.createElement('TD');
+                number.appendChild(document.createTextNode(i));
+                tr.appendChild(number);
+                number.width=100;
+                var name = document.createElement('TD');
+                name.appendChild(document.createTextNode(stock[i].name));
+                tr.appendChild(name);
+                var type = document.createElement('TD');
+                type.appendChild(document.createTextNode(stock[i].test_type));
+                tr.appendChild(type);
+                var t_price = document.createElement('TD');
+                t_price.appendChild(document.createTextNode(stock[i].test_price));
+                tr.appendChild(t_price);
+                tableBody.appendChild(tr);
+            }
+            myTableDiv.appendChild(table);
+            total=total_price;
+
+            {#alert('total price is : '+ total_price+'$');#}
+        }
+}
+
+        function reload() {
+        location.reload(true);
+        }
+        function PDFGen() {
+            var doc=new jsPDF();
+            doc.setFontSize(15);
+            doc.text(20,12,"Test Name ");
+            doc.text(130,12,"Test price Type ");
+            doc.text(175,12,"Price ");
+            doc.text(0,15,"_____________________________________________________________________________________________");
+            doc.setFontSize(10);
+            let x=0;
+            for(let i=0;i<receipt.length;i++){
+                doc.text(5,(i+2)*10,receipt[i].name);
+                doc.text(140,(i+2)*10,receipt[i].test_type);
+                doc.text(180,(i+2)*10,receipt[i].test_price.toString());
+                x=(i+2)*10;
+            }
+            doc.text(0,x+5,"__________________________________________________________________________________________________________");
+
+            doc.text(170,(x+2)*10,'Total : '+total.toString());
+
+            doc.save("doc.pdf")
+
+
+        }
+
+    </script>
+</head>
+<body style="background-color: #212529">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="http://127.0.0.1:8000/Home">Home</a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/areas/">Areas</a>
+            </li>
+               <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/search/?q=">Cure stations</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/price">Prices</a>
+            </li>
+        </ul>
+{#        <form class="form-inline my-2 my-lg-0" method="GET">#}
+{#            <input class="form-control mr-sm-2" action="{% url 'get_queryset' %}" name="q" type="search" aria-label="Search" placeholder="Search...">#}
+{#            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>#}
+{#        </form>#}
+    </div>
+</nav>
+
+
+
+<main class="login-form" style="margin-top:8%">
+    <div class="cotainer">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card" >
+                    <div class="card-header">Billing Form</div>
+                    <div class="card-body">
+                        <form action="" method="">
+                            <div class="form-group row">
+                                <label for="email_address" class="col-md-4 col-form-label text-md-right">Select Patient : </label>
+                                <div class="col-md-6">
+                                    <select id="patient_select" class="selectpicker"   data-live-search="true">
+                                        <option  >Choose your option</option>
+                                        {% for p in patients %}
+                                            <option value="{{p.first_name}}">{{p.first_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="password" class="col-md-4 col-form-label text-md-right">Select Tests : </label>
+                                <div class="col-md-6">
+                                    <select id="test_select" class="selectpicker" multiple multiple data-live-search="true">
+                                        <option disabled >Choose your option</option>
+                                        {% for t in tests %}
+                                            <option value="{{ t.name }}">{{t.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="email_address" class="col-md-4 col-form-label text-md-right">Select Test Price Type :  </label>
+                                <div class="col-md-6">
+
+                                    <select id="price" class="selectpicker" multiple data-live-search="true">
+                                        <option disabled >Choose your option</option>
+                                        <option>max_1995</option>
+                                        <option>min_1995</option>
+                                        <option>min_price</option>
+                                        <option>max_2008</option>
+                                        <option>jam</option>
+                                    </select>
+                                    <div style=";margin-top: 10%;">
+                                        <button style="width: 45%" class="btn btn-outline-dark" data-toggle="modal" type="button" data-target="#exampleModal" onclick="valsh()">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="metric_results"  class="table table-striped table-dark">
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="reload()">Close</button>
+                <button type="button" class="btn btn-outline-dark" onclick="PDFGen()">Generate PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<footer class="page-footer font-small purple pt-4 fixed-bottom">
+  <div class="footer-copyright text-center py-3">
+    <strong><a href="http://www.fardthakh.com/" style="color: white;">© 2020 Copyright:Al Fardthakh</a></strong>
+  </div>
+</footer>
+</html>

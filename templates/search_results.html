@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Page</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+<style type="text/css">
+    #gis{width:70%; position: absolute;
+  top: 55px;
+  bottom:50px;
+}    #small{width:100%;
+  {#top: 55px;#}
+  {#bottom:50px;#}
+}
+
+</style>
+
+</head>
+<body style="background-color: #212529">
+{% load static %}
+{% load leaflet_tags %}
+{% leaflet_js %}
+{% leaflet_css %}
+
+<script>
+    let All_Labs={};
+    let x=0;
+    var selected_id =0;
+    {% for lab in value %}
+        var obj={
+            id:{{ lab.id }},
+            name:'{{ lab.name }}',
+            address:'{{ lab.address }}',
+            area:'{{ lab.area }}',
+            manager:'{{ lab.manager }}',
+            point_type:'{{ lab.point_type }}',
+        };
+        All_Labs[{{lab.id}}]=obj;
+    {% endfor %}
+
+
+    function Lab_Data(id)
+    {
+        selected_id=id;
+        document.getElementById("Lab_header").textContent =All_Labs[id].name;
+        document.getElementById("area").textContent =All_Labs[id].area;
+        document.getElementById("address").textContent =All_Labs[id].address;
+        document.getElementById("manager").textContent =All_Labs[id].manager;
+        document.getElementById("point_type").textContent =All_Labs[id].point_type;
+
+    }
+</script>
+
+<nav class="navbar navbar-expand-lg navbar-dark ">
+    <a class="navbar-brand" href="http://127.0.0.1:8000/Home">Home</a>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/areas/">Areas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/search/?q=">Cure stations</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/price">Prices</a>
+            </li>
+        </ul>
+
+    </div>
+</nav>
+{#<label style="color: aliceblue">{{ value.count }} Lab Found !!</label>#}
+{#<form  method="get" style="">#}
+{#<label>'{{ value.count }}'</label>#}
+{#    {% for val in value %}#}
+{#       <label style="color: aliceblue"> {{ val }} in : {{ val.address }} </label>#}
+{#        <br>#}
+{#    {% endfor %}#}
+{#</form>#}
+<script type="text/javascript" src="{% static "dist/leaflet.ajax.js" %}">
+</script>
+<script type="text/javascript">
+    function  our_layers(map,option) {
+        {% for val in value %}
+            var points=new L.GeoJSON.AJAX("{% url 'all' %}",{
+                filter:function (feature,layer) {
+                    if (feature.properties.name.toString()==="{{val}}" ){
+                        {#console.log('{{ val }}');#}
+                        return feature.properties.name}
+                },
+                onEachFeature: function (feature,layer) {
+                    layer.bindPopup(feature.properties.name.toString())
+                }});
+            points.addTo(map);
+
+        {% endfor %}
+    }
+     {#function small_map(map,option) {#}
+     {#       var points=new L.GeoJSON.AJAX("{% url 'all' %}",{#}
+     {#           filter:function (feature,layer) {#}
+     {#               if (feature.properties.name.toString()===All_Labs[selected_id].toString() ){#}
+     {#                   console.log(All_Labs[selected_id].name);#}
+     {#                   return feature.properties.name}#}
+     {#           },#}
+     {#           onEachFeature: function (feature,layer) {#}
+     {#               layer.bindPopup(feature.properties.name.toString())#}
+     {#           }});#}
+     {#       points.addTo(map);#}
+     {##}
+     {#   }#}
+</script>
+<div style="margin-left: 71%">
+      <form class="form-inline my-2 my-lg-0" method="GET">
+            <input style="width: 65%" class="form-control mr-sm-2" action="{% url 'search_by_city' %}" name="q" type="search" aria-label="Search" placeholder="Search...">
+            <button class="btn btn-secondary" type="submit" onclick="">Search</button>
+        </form>
+</div>
+<div class="list-group" style="width: 23.3%;margin-top: 10px;margin-left: 71% ">
+    {% for lab in value %}
+      <button id="{{ lab.pk }}" data-target="#exampleModal" data-toggle="modal" type="button" class="list-group-item list-group-item-action" onclick="Lab_Data(this.id)">{{ lab.name }}</button>
+    {% endfor %}
+
+</div>
+
+
+<div>
+    <div id="full-height">{% leaflet_map "gis"  callback="window.our_layers" %}</div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center">
+                <h5 class="modal-title" id="exampleModalLabel" style="margin-left: 35%">Station Information</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <blockquote class="blockquote" style="text-align: center">
+                                          <h1 id="Lab_header" style="text-align: center"></h1>
+
+                    <div class="d-flex p-2">
+                        <h5 class="mb-0">City :  </h5>
+                        <footer id="area" class="blockquote-footer"></footer>
+
+                        <h5 style="margin-left: 20%" class="mb-0">Manager :  </h5>
+                        <footer id="manager" class="blockquote-footer"></footer>
+                    </div>
+                    <div class="d-flex p-2">
+                        <h5 class="mb-0">Address :  </h5>
+                        <footer id="address" class="blockquote-footer"></footer>
+
+                        <h5 style="margin-left: 20%" class="mb-0">Type :  </h5>
+                        <footer id="point_type" class="blockquote-footer"></footer>
+                    </div>
+
+
+{#    <div id="full-height">{% leaflet_map "small"  callback="window.small_map" %}</div>#}
+
+                </blockquote>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="reload()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<footer class="page-footer font-small purple pt-4 fixed-bottom">
+  <div class="footer-copyright text-center py-3">
+    <strong><a href="http://www.fardthakh.com/" style="color: white;">© 2020 Copyright:Al Fardthakh</a></strong>
+  </div>
+</footer>
+</html>
+
