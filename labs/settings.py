@@ -25,7 +25,7 @@ SECRET_KEY = 'y+ojzkoj3kifxydlk&)p5*0m248egrw&#%pc+tex$!yr30gba('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.covid-map.fardthakh.com','139.59.210.231',]
 
 
 # Application definition
@@ -83,10 +83,10 @@ WSGI_APPLICATION = 'labs.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'lab',
-        'USER': 'postgres',
+        'NAME': 'covgis',
+        'USER': 'admin',
         'HOST': 'localhost',
-        'PASSWORD': 'laith@31',
+        'PASSWORD': 'admin@far',
 
     }
 }
@@ -124,10 +124,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 STATIC_URL = '/static/'
 LEAFLET_CONFIG={
     'DEFAULT_CENTER':(31,36.87),
@@ -143,4 +145,4 @@ REST_FRAMEWORK = {
     ],
 }
 
-STATICFILES_DIRS=(os.path.join(BASE_DIR,'static')),
+

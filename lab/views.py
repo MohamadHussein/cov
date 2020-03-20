@@ -1,7 +1,8 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.shortcuts import render
-from reportlab.lib.pagesizes import A4, letter
+
 
 from .Serializers import *
 # Create your views here.
@@ -124,8 +125,4 @@ def testGet(request):
     })
 
 
-buddy = User.objects.get(username='admin')
-token = Token.objects.get(user=buddy)
-print('-----------------Token :--------------------')
-print(token.key)
-print('-----------------Token :--------------------\n')
+

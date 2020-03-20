@@ -2,6 +2,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.db.models import PointField as PField
 from django.contrib.auth.models import User
 from django import forms
+from django.conf import settings
 
 class Area(models.Model):
     id_0 = models.BigIntegerField()
@@ -11,7 +12,7 @@ class Area(models.Model):
     name_1 = models.CharField(max_length=75)
     type_1 = models.CharField(max_length=50)
     engtype_1 = models.CharField(max_length=50)
-    # nl_name_1 = models.CharField(max_length=50,null=True)
+    nl_name_1 = models.CharField(max_length=50,null=True)
     varname_1 = models.CharField(max_length=150,null=True)
     population=models.IntegerField(null=True)
     confirmed_cases=models.IntegerField(null=True)
@@ -37,7 +38,7 @@ class Insurance(models.Model):
         return self.name
 
 class Patient(models.Model):
-    user=models.OneToOneField(User,on_delete=models.CASCADE)
+    user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     patient_ID=models.IntegerField()
     Salutation=models.CharField(null=True,blank=True,max_length=150)
     first_name=models.CharField(max_length=150)
@@ -58,7 +59,7 @@ class Patient(models.Model):
 
 
 class Doctor(models.Model):
-    user=models.OneToOneField(User,on_delete=models.CASCADE)
+    user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,null=True)
     Doctor_ID=models.IntegerField()
     name=models.CharField(max_length=150)
     gender=models.CharField(max_length=100)
